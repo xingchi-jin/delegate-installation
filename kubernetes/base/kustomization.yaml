@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - harness-delegate-ng-immutable.yaml
+  - namespace.yaml
+  - delegate-service.yaml
+  - upgrader
+
+namespace: harness-delegate-ng
+
+configMapGenerator:
+  - name: delegate-config
+    behavior: create
+    envs:
+      - delegate-environment.env
+
+secretGenerator:
+  - name: account-token
+    behavior: create
+    literals:
+      - DELEGATE_TOKEN="${secret}"

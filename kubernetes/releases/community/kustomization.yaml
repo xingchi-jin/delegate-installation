@@ -1,0 +1,87 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - ../../features/k8spermissions/clusteradmin
+
+namePrefix: testname
+namespace: harness-delegate-ng
+
+configMapGenerator:
+  - name: delegate-config
+    behavior: merge
+    literals:
+      - LOG_STREAMING_SERVICE_URL="${logStreamingServiceBaseUrl}"
+      - DELEGATE_DESCRIPTION="${delegateDescription}"
+      - DELEGATE_TAGS="tag1,tag2"
+      - ACCOUNT_ID=${accountId}
+      - MANAGER_HOST_AND_PORT=${managerHostAndPort}
+      - DELEGATE_NAMESPACE="harness-delegate-ng"
+
+secretGenerator:
+  - name: account-token
+    behavior: replace
+    literals:
+      - DELEGATE_TOKEN=${delegateToken}
+
+images:
+  - name: harness/delegate
+    newName: ${delegateImageName}
+    newTag: v1
+  - name: harness/upgrader
+    newName: ${upgraderImageName}
+    newTag: v1
+
+replicas:
+  - name: -delimiter-delegate
+    count: 1
+
+replacements:
+  - source:
+      kind: Secret
+      version: v1
+      name: account-token
+      fieldPath: data.DELEGATE_TOKEN
+    targets:
+      - select:
+          kind: Secret
+          version: v1
+          name: upgrader-token
+        fieldPaths:
+          - data.UPGRADER_TOKEN
+  - source:
+      kind: Deployment
+      name: -delimiter-delegate
+      group: apps
+      version: v1
+      options:
+        delimiter: '-delimiter-'
+        index: 0
+      fieldPath: metadata.name
+    targets:
+      - select:
+          kind: Deployment
+          name: -delimiter-delegate
+          group: apps
+          version: v1
+        fieldPaths:
+          - metadata.labels.[harness.io/name]
+          - spec.selector.matchLabels.[harness.io/name]
+          - spec.template.metadata.labels.[harness.io/name]
+      - select:
+          kind: ConfigMap
+          name: delegate-config
+          version: v1
+        fieldPaths:
+          - data.DELEGATE_NAME
+      - select:
+          kind: CronJob
+          group: batch
+          version: v1
+          name: upgrader-job
+        options:
+          delimiter: '-'
+          index: 0
+        fieldPaths:
+          - metadata.labels.[harness.io/name]

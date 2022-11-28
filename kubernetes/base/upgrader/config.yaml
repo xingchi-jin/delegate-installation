@@ -1,0 +1,8 @@
+mode: Delegate
+dryRun: false
+workloadName: ${fullDelegateName}
+namespace: harness-delegate-ng
+containerName: delegate
+delegateConfig:
+  accountId: ${accountId}
+  managerHost: ${managerHostAndPort}

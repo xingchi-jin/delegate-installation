@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: harness-delegate-ng-cluster-viewer
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: harness-delegate-ng
+roleRef:
+  kind: ClusterRole
+  name: view
+  apiGroup: rbac.authorization.k8s.io

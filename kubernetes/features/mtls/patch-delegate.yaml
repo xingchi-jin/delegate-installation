@@ -1,0 +1,13 @@
+- op: add
+  path: /spec/template/spec/containers/0
+  value:
+    volumeMounts:
+      - name: client-certificate
+        mountPath: /etc/mtls
+        readOnly: true
+- op: add
+  path: /spec/template/spec/volumes/-
+  value:
+    name: client-certificate
+    secret:
+      secretName: client-certificate

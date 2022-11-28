@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  labels:
+    harness.io/name: ${delegateName}-upgrader-job
+  name: upgrader-job
+spec:
+  schedule: "0 */1 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 20
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: upgrader-cronjob-sa
+          restartPolicy: Never
+          containers:
+          - image: harness/upgrader:latest
+            name: upgrader
+            imagePullPolicy: Always
+            envFrom:
+            - secretRef:
+                name: upgrader-token
+            volumeMounts:
+              - name: config-volume
+                mountPath: /etc/config
+          volumes:
+            - name: config-volume
+              configMap:
+                name: upgrader-config

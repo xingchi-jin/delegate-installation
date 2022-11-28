@@ -1,0 +1,59 @@
+# If delegate needs to use a proxy, please follow instructions available in the documentation
+# https://ngdocs.harness.io/article/5ww21ewdt8-configure-delegate-proxy-settings
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    harness.io/name: ${delegateName}
+  name: -delimiter-delegate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      harness.io/name: ${delegateName}
+  template:
+    metadata:
+      labels:
+        harness.io/name: ${delegateName}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3460"
+        prometheus.io/path: "/api/metrics"
+    spec:
+      terminationGracePeriodSeconds: 600
+      restartPolicy: Always
+      containers:
+      - image: harness/delegate:latest
+        imagePullPolicy: Always
+        name: delegate
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 0
+        resources:
+          limits:
+            memory: "2048Mi"
+          requests:
+            cpu: "0.5"
+            memory: "2048Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3460
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 2
+        startupProbe:
+          httpGet:
+            path: /api/health
+            port: 3460
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 15
+        envFrom:
+        - secretRef:
+            name: account-token
+        - configMapRef:
+            name: delegate-config

@@ -5,32 +5,31 @@ resources:
   - ../../base
   - ../../features/k8spermissions/clusteradmin
 
-namePrefix: testname
+namePrefix: PUT_YOUR_DELEGATE_NAME
 namespace: harness-delegate-ng
 
 configMapGenerator:
   - name: delegate-config
     behavior: merge
     literals:
-      - LOG_STREAMING_SERVICE_URL="${logStreamingServiceBaseUrl}"
-      - DELEGATE_DESCRIPTION="${delegateDescription}"
-      - DELEGATE_TAGS="tag1,tag2"
-      - ACCOUNT_ID=${accountId}
-      - MANAGER_HOST_AND_PORT=${managerHostAndPort}
+      - LOG_STREAMING_SERVICE_URL="https://app.harness.io/gratis/log-service/"
+      - DELEGATE_TAGS=""
+      - ACCOUNT_ID=PUT_YOUR_ACCOUNT_ID
+      - MANAGER_HOST_AND_PORT="https://app.harness.io/gratis"
       - DELEGATE_NAMESPACE="harness-delegate-ng"
 
 secretGenerator:
   - name: account-token
     behavior: replace
     literals:
-      - DELEGATE_TOKEN=${delegateToken}
+      - DELEGATE_TOKEN=PUT_YOUR_TOKEN
 
 images:
   - name: harness/delegate
-    newName: ${delegateImageName}
+    newName: harness/delegate:22.11.77436
     newTag: v1
   - name: harness/upgrader
-    newName: ${upgraderImageName}
+    newName: harness/upgrader:latest
     newTag: v1
 
 replicas:

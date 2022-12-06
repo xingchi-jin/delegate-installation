@@ -1,7 +1,7 @@
 variable "helm_repository" {
   description = "The Helm repository to use."
   type        = string
-  default     = ""
+  default     = "https://app.harness.io/storage/harness-download/harness-helm-charts/"
 }
 
 variable "namespace" {
@@ -53,20 +53,36 @@ variable "proxy_password" {
   default = ""
 }
 
-variable "irsa_enabled" {
-  description = "Whether to enable IRSA for the Harness delegate."
-  type        = bool
-  default     = false
+variable "proxy_host" {
+  description = "The proxy host."
+  type        = string
+  // sensitive = true
+  default = ""
 }
 
-variable "irsa_role_arn" {
-  description = "The ARN of the role to use for IRSA for the Harness delegate."
+variable "proxy_port" {
+  description = "The port of the proxy"
   type        = string
-  default     = ""
+  // sensitive = true
+  default = ""
+}
+
+variable "proxy_scheme" {
+  description = "The proxy user to use for the Harness delegate."
+  type        = string
+  // sensitive = true
+  default = ""
+}
+
+variable "no_proxy" {
+  description = "Enter a comma-separated list of suffixes that do not need the proxy. For example, .company.com,hostname,etc. Do not use leading wildcards."
+  type        = string
+  // sensitive = true
+  default = ""
 }
 
 variable "values" {
   description = "Additional values to pass to the helm chart. Values will be merged, in order, as Helm does with multiple -f options"
   type        = string
-  default     = ""
+  //default     = ""
 }

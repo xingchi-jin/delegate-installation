@@ -1,6 +1,6 @@
 resource "helm_release" "delegate" {
   name             = var.delegate_name
-  repository       = "https://app.harness.io/storage/harness-download/harness-helm-charts/"
+  repository       = var.helm_repository
   chart            = "harness-delegate-ng"
   namespace        = var.namespace
   create_namespace = true
@@ -17,29 +17,18 @@ locals {
     delegateName    = var.delegate_name,
     dockerImage     = var.delegate_image,
     proxyUser       = var.proxy_user,
-    proxyPassword   = var.proxy_password
+    proxyPassword   = var.proxy_password,
+    proxyHost       = var.proxy_host,
+    proxyPort       = var.proxy_port,
+    proxyScheme     = var.proxy_scheme,
+    noProxy         = var.no_proxy
   })
 }
-
 
 data "utils_deep_merge_yaml" "values" {
   input = compact([
     local.values,
-    var.irsa_enabled ? data.utils_deep_merge_yaml.irsa[0].output : "",
     var.values
-  ])
-}
-
-data "utils_deep_merge_yaml" "irsa" {
-  count = var.irsa_enabled ? 1 : 0
-  input = compact([
-    yamlencode({
-      serviceAccount : {
-        annotations : {
-          "eks.amazonaws.com/role-arn" : var.irsa_role_arn,
-        }
-      }
-    })
   ])
 }
 
